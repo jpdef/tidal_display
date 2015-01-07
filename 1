@@ -1,0 +1,48 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib
+from scipy.interpolate import interp1d
+from datetime import datetime
+
+#ax1 = plt.subplot(1,1,1, axisbg = 'black')
+fig ,ax1 = plt.subplots()
+ax1.set_axis_bgcolor('black')
+fig.tight_layout()
+plt.ion()
+tide_data = open('tide_data.txt','r')
+
+time_array = []
+tide_array = []
+
+#runs through file by line inserts in array
+#fix: parse based on time and tide level
+i =0
+for line in tide_data:
+    s = line.split()
+    time_array.append( datetime.strptime(s[0] + " " + s[2] + " " + s[3],
+    "%Y/%m/%d %I:%M %p") )
+    tide_array.append(float(s[4]) )
+
+week_time_array = []
+week_tide_array = []
+
+now = datetime.datime.now();
+for i in xrange(0,len(week_time_array)):
+    prospect = week_time_array[i]
+    if (now.day == prospect.day) and 
+        (now.month == prospect.month):
+        print i 
+for i in xrange(0,7):
+    week_time_array.append(time_array[i])
+    week_tide_array.append(tide_array[i])
+
+dates = matplotlib.dates.date2num(week_time_array)
+print dates
+f = interp1d(dates,week_tide_array,kind ='cubic')
+dates_new = np.linspace(dates[0],dates[len(dates)-1],num=35)
+ax1.plot_date(dates_new,f(dates_new),'b-')
+plt.show()
+
+while True:
+   ax1.plot_date(np.repeat(dates_new[2],20),np.arange(-10,10),'r-')
+   plt.draw()
